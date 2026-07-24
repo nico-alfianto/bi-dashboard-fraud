@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Dashboard - Real-Time Fraud Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
+       .container { max-width: 1400px; margin: auto; }
+        h1 { color: #58a6ff; text-align: center; }
+       .status { text-align: center; color: #3fb950; font-weight: bold; }
+       .kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+       .kpi-box { background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
+       .kpi-box h3 { margin: 0; font-size: 14px; color: #8b949e; }
+       .kpi-box p { margin: 10px 0 0; font-size: 28px; font-weight: bold; color: #58a6ff; }
+       .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+       .chart-card { background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; }
+       .alert { background: #3d1f1f; border-left: 5px solid #f85149; padding: 15px; margin: 20px 0; border-radius: 5px; color: #f85149; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Real-Time Fraud Monitoring System</h1>
+        <p class="status" id="status">● LIVE - Updating every 3 seconds</p>
+
+        <div id="alertBox"></div>
+
+        <div class="kpi">
+            <div class="kpi-box"><h3>Total Transaksi Hari Ini</h3><p id="totalTrans">0</p></div>
+            <div class="kpi-box"><h3>Fraud Terdeteksi</h3><p id="totalFraud">0</p></div>
+            <div class="kpi-box"><h3>Fraud Rate</h3><p id="fraudRate">0%</p></div>
+            <div class="kpi-box"><h3>Kerugian Potensi</h3><p id="loss">$0</p></div>
+        </div>
+
+        <div class="grid">
+            <div class="chart-card"><h2>Transaksi per Menit</h2><canvas id="lineChart"></canvas></div>
+            <div class="chart-card"><h2>Fraud vs Normal</h2><canvas id="doughnutChart"></canvas></div>
+        </div>
+    </div>
+
+<script>
+    // INISIALISASI DATA
+    let totalTrans = 50000;
+    let totalFraud = 45;
+    let fraudPerMinute = Array(20).fill(0); // 20 menit terakhir
+
+    // CHART 1: LINE CHART REALTIME
+    const lineChart = new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: { labels: Array.from({length: 20}, (_, i) => `${i}m`), datasets: [{ label: 'Fraud/Menit', data: fraudPerMinute, borderColor: '#f85149', backgroundColor: 'rgba(248,81,73,0.2)', tension: 0.4 }] },
+        options: { responsive: true, animation: false }
+    });
+
+    // CHART 2: DOUGHNUT CHART
+    const doughnutChart = new Chart(document.getElementById('doughnutChart'), {
+        type: 'doughnut',
+        data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58a6ff', '#f85149'] }] }
+    });
+
+    // FUNGSI UPDATE DATA TIAP 3 DETIK
+    function updateDashboard() {
+        // Simulasi transaksi baru masuk
+        let newTrans = Math.floor(Math.random() * 50) + 10; // 10-60 transaksi baru
+        let newFraud = Math.random() < 0.001? Math.floor(Math.random() * 3) + 1 : 0; // 0.1% kemungkinan fraud
+
+        totalTrans += newTrans;
+        totalFraud += newFraud;
+
+        // Update KPI
+        document.getElementById('totalTrans').innerText = totalTrans.toLocaleString();
+        document.getElementById('totalFraud').innerText = totalFraud;
+        document.getElementById('fraudRate').innerText = ((totalFraud / totalTrans) * 100).toFixed(4) + '%';
+        document.getElementById('loss').innerText = '$' + (totalFraud * 180).toLocaleString(); // asumsi 1 fraud = $180
+
+        // Update Line Chart - geser data
+        fraudPerMinute.shift();
+        fraudPerMinute.push(newFraud);
+        lineChart.data.datasets[0].data = fraudPerMinute;
+        lineChart.update();
+
+        // Update Doughnut
+        doughnutChart.data.datasets[0].data = [totalTrans - totalFraud, totalFraud];
+        doughnutChart.update();
+
+        // Munculin ALERT kalau ada fraud
+        if(newFraud > 0) {
+            document.getElementById('alertBox').innerHTML = `<div class="alert">⚠️ ALERT: Terdeteksi ${newFraud} transaksi fraud baru! Waktu: ${new Date().toLocaleTimeString()}</div>`;
+            setTimeout(() => { document.getElementById('alertBox').innerHTML = ''; }, 5000); // ilang 5 detik
+        }
+    }
+
+    // JALANKAN TIAP 3 DETIK
+    setInterval(updateDashboard, 3000);
+    updateDashboard(); // jalan pertama kali
+</script>
+</body>
+</html>
