@@ -3,37 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Dashboard - Sistem Pengawasan Fraud Lengkap</title>
+    <title>BI Dashboard - Sistem Pengawasan Fraud</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 15px; }
-      .container { max-width: 1600px; margin: auto; }
+     .container { max-width: 1600px; margin: auto; }
         h1 { color: #58a6ff; text-align: center; font-size: 24px; }
-      .status { text-align: center; color: #3fb950; font-weight: bold; font-size: 14px; }
-      .buttons { text-align: center; margin: 15px 0; }
+     .status { text-align: center; color: #3fb950; font-weight: bold; font-size: 14px; }
+     .buttons { text-align: center; margin: 15px 0; }
         button { background: #238636; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 14px; }
 
-        /* KPI GRID RESPONSIVE */
-      .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
-      .kpi-box { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
-      .kpi-box h3 { margin: 0; font-size: 12px; color: #8b949e; }
-      .kpi-box p { margin: 8px 0 0; font-size: 20px; font-weight: bold; color: #58a6ff; }
+     .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
+     .kpi-box { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
+     .kpi-box h3 { margin: 0; font-size: 12px; color: #8b949e; }
+     .kpi-box p { margin: 8px 0 0; font-size: 20px; font-weight: bold; color: #58a6ff; }
 
-        /* GRID UTAMA 3 KOLOM DI LAPTOP */
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; margin-top: 20px; }
-      .chart-card { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; }
-      .chart-card h2 { font-size: 16px; margin-top: 0; }
-      .alert { background: #3d1f1f; border-left: 5px solid #f85149; padding: 10px; margin: 10px 0; border-radius: 5px; color: #f85149; font-size: 14px; }
-
-        /* FIX PENTING: BUAT CANVAS BULAT */
-      .chart-container { position: relative; height: 280px; width: 100%; }
+     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; margin-top: 20px; }
+     .chart-card { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; }
+     .chart-card h2 { font-size: 16px; margin-top: 0; }
+     .alert { background: #3d1f1f; border-left: 5px solid #f85149; padding: 10px; margin: 10px 0; border-radius: 5px; color: #f85149; font-size: 14px; }
+     .chart-container { position: relative; height: 280px; width: 100%; } /* FIX BUAT BULAT */
     </style>
 </head>
 <body>
 <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
     <div class="container">
-        <h1>Sistem Pengawasan Fraud Real-Time BI</h1>
+        <h1>🚨 Sistem Pengawasan Fraud Real-Time BI</h1>
         <p class="status" id="status">● LIVE</p>
         <div class="buttons">
             <button onclick="togglePause()">Pause/Resume</button>
@@ -67,38 +63,20 @@
     let fraudTypes = [5, 12, 8, 15, 5];
     let locations = [10, 8, 15, 7, 5];
 
-    const commonOptions = { responsive: true, maintainAspectRatio: false }; // INI KUNCINYA
+    const commonOptions = { responsive: true, maintainAspectRatio: false };
 
-    // 1. LINE CHART
-    const lineChart = new Chart(document.getElementById('lineChart'), {
-        type: 'line', data: { labels: Array.from({length: 20}, (_, i) => `${i}m`), datasets: [{ label: 'Fraud/Menit', data: fraudPerMinute, borderColor: '#f85149', tension: 0.4, fill: true }] },
-        options: commonOptions
-    });
+    // 1. LINE
+    const lineChart = new Chart(document.getElementById('lineChart'), { type: 'line', data: { labels: Array.from({length: 20}, (_, i) => `${i}m`), datasets: [{ label: 'Fraud/Menit', data: fraudPerMinute, borderColor: '#f85149', tension: 0.4, fill: true }] }, options: commonOptions });
     // 2. DOUGHNUT
-    const doughnutChart = new Chart(document.getElementById('doughnutChart'), {
-        type: 'doughnut', data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58a6ff', '#f85149'] }] },
-        options: commonOptions
-    });
+    const doughnutChart = new Chart(document.getElementById('doughnutChart'), { type: 'doughnut', data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58a6ff', '#f85149'] }] }, options: commonOptions });
     // 3. BAR
-    const barChart = new Chart(document.getElementById('barChart'), {
-        type: 'bar', data: { labels: Array.from({length: 24}, (_, i) => i), datasets: [{ label: 'Fraud/Jam', data: fraudPerHour, backgroundColor: '#FF8C00' }] },
-        options: commonOptions
-    });
+    const barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: Array.from({length: 24}, (_, i) => i), datasets: [{ label: 'Fraud/Jam', data: fraudPerHour, backgroundColor: '#FF8C00' }] }, options: commonOptions });
     // 4. RADAR
-    const radarChart = new Chart(document.getElementById('radarChart'), {
-        type: 'radar', data: { labels: ['Card Not Present', 'Kartu Hilang', 'Kartu Palsu', 'Online', 'Lainnya'], datasets: [{ label: 'Jumlah', data: fraudTypes, backgroundColor: 'rgba(88,166,255,0.3)', borderColor: '#58a6ff' }] },
-        options: commonOptions
-    });
-    // 5. POLAR AREA - UDAH BULAT
-    const polarChart = new Chart(document.getElementById('polarChart'), {
-        type: 'polarArea', data: { labels: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Lainnya'], datasets: [{ data: locations, backgroundColor: ['#f85149','#FF8C00','#58a6ff','#3fb950','#8b949e'] }] },
-        options: {...commonOptions, scales: { r: { ticks: { color: '#8b949e' } } } // tambahin scale r biar rapi
-    });
+    const radarChart = new Chart(document.getElementById('radarChart'), { type: 'radar', data: { labels: ['Card Not Present', 'Kartu Hilang', 'Kartu Palsu', 'Online', 'Lainnya'], datasets: [{ label: 'Jumlah', data: fraudTypes, backgroundColor: 'rgba(88,166,255,0.3)', borderColor: '#58a6ff' }] }, options: commonOptions });
+    // 5. POLAR AREA - UDAH DITUTUP KURUNG NYA
+    const polarChart = new Chart(document.getElementById('polarChart'), { type: 'polarArea', data: { labels: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Lainnya'], datasets: [{ data: locations, backgroundColor: ['#f85149','#FF8C00','#58a6ff','#3fb950','#8b949e'] }] }, options: {...commonOptions, scales: { r: { ticks: { color: '#8b949e' } }); // <-- INI YG KEMARIN KURANG }
     // 6. GAUGE
-    const gaugeChart = new Chart(document.getElementById('gaugeChart'), {
-        type: 'doughnut', data: { labels: ['Risk', 'Safe'], datasets: [{ data: [30, 70], backgroundColor: ['#f85149','#30363d'], circumference: 180, rotation: 270 }] },
-        options: commonOptions
-    });
+    const gaugeChart = new Chart(document.getElementById('gaugeChart'), { type: 'doughnut', data: { labels: ['Risk', 'Safe'], datasets: [{ data: [30, 70], backgroundColor: ['#f85149','#30363d'], circumference: 180, rotation: 270 }] }, options: commonOptions });
 
     function updateDashboard() {
         if(isPaused) return;
