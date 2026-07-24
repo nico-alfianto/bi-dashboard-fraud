@@ -8,24 +8,26 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 15px; }
-     .container { max-width: 1600px; margin: auto; }
+      .container { max-width: 1600px; margin: auto; }
         h1 { color: #58a6ff; text-align: center; font-size: 24px; }
-     .status { text-align: center; color: #3fb950; font-weight: bold; font-size: 14px; }
-     .buttons { text-align: center; margin: 15px 0; }
+      .status { text-align: center; color: #3fb950; font-weight: bold; font-size: 14px; }
+      .buttons { text-align: center; margin: 15px 0; }
         button { background: #238636; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 14px; }
 
         /* KPI GRID RESPONSIVE */
-     .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
-     .kpi-box { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
-     .kpi-box h3 { margin: 0; font-size: 12px; color: #8b949e; }
-     .kpi-box p { margin: 8px 0 0; font-size: 20px; font-weight: bold; color: #58a6ff; }
+      .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
+      .kpi-box { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
+      .kpi-box h3 { margin: 0; font-size: 12px; color: #8b949e; }
+      .kpi-box p { margin: 8px 0 0; font-size: 20px; font-weight: bold; color: #58a6ff; }
 
         /* GRID UTAMA 3 KOLOM DI LAPTOP */
-     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; margin-top: 20px; }
-     .chart-card { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; }
-     .chart-card h2 { font-size: 16px; margin-top: 0; }
-     .alert { background: #3d1f1f; border-left: 5px solid #f85149; padding: 10px; margin: 10px 0; border-radius: 5px; color: #f85149; font-size: 14px; }
-        canvas { max-height: 300px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; margin-top: 20px; }
+      .chart-card { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; }
+      .chart-card h2 { font-size: 16px; margin-top: 0; }
+      .alert { background: #3d1f1f; border-left: 5px solid #f85149; padding: 10px; margin: 10px 0; border-radius: 5px; color: #f85149; font-size: 14px; }
+
+        /* FIX PENTING: BUAT CANVAS BULAT */
+      .chart-container { position: relative; height: 280px; width: 100%; }
     </style>
 </head>
 <body>
@@ -48,12 +50,12 @@
         </div>
 
         <div class="grid">
-            <div class="chart-card"><h2>1. Line Chart - Fraud per Menit</h2><canvas id="lineChart"></canvas></div>
-            <div class="chart-card"><h2>2. Doughnut - Proporsi Fraud</h2><canvas id="doughnutChart"></canvas></div>
-            <div class="chart-card"><h2>3. Bar Chart - Jam Rawan</h2><canvas id="barChart"></canvas></div>
-            <div class="chart-card"><h2>4. Radar Chart - Tipe Fraud</h2><canvas id="radarChart"></canvas></div>
-            <div class="chart-card"><h2>5. Polar Area - Lokasi Fraud</h2><canvas id="polarChart"></canvas></div>
-            <div class="chart-card"><h2>6. Gauge - Risk Level</h2><canvas id="gaugeChart"></canvas></div>
+            <div class="chart-card"><h2>1. Line Chart - Fraud per Menit</h2><div class="chart-container"><canvas id="lineChart"></canvas></div></div>
+            <div class="chart-card"><h2>2. Doughnut - Proporsi Fraud</h2><div class="chart-container"><canvas id="doughnutChart"></canvas></div></div>
+            <div class="chart-card"><h2>3. Bar Chart - Jam Rawan</h2><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+            <div class="chart-card"><h2>4. Radar Chart - Tipe Fraud</h2><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
+            <div class="chart-card"><h2>5. Polar Area - Lokasi Fraud</h2><div class="chart-container"><canvas id="polarChart"></canvas></div></div>
+            <div class="chart-card"><h2>6. Gauge - Risk Level</h2><div class="chart-container"><canvas id="gaugeChart"></canvas></div></div>
         </div>
     </div>
 
@@ -62,44 +64,40 @@
     let totalTrans = 50000, totalFraud = 45;
     let fraudPerMinute = Array(20).fill(0);
     let fraudPerHour = Array(24).fill(0);
-    let fraudTypes = [5, 12, 8, 15, 5]; // CardNotPresent, Stolen, Fake, Online, Other
-    let locations = [10, 8, 15, 7, 5]; // JKT, BDG, SBY, MED, Lain
+    let fraudTypes = [5, 12, 8, 15, 5];
+    let locations = [10, 8, 15, 7, 5];
+
+    const commonOptions = { responsive: true, maintainAspectRatio: false }; // INI KUNCINYA
 
     // 1. LINE CHART
     const lineChart = new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: { labels: Array.from({length: 20}, (_, i) => `${i}m`), datasets: [{ label: 'Fraud/Menit', data: fraudPerMinute, borderColor: '#f85149', tension: 0.4, fill: true }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        type: 'line', data: { labels: Array.from({length: 20}, (_, i) => `${i}m`), datasets: [{ label: 'Fraud/Menit', data: fraudPerMinute, borderColor: '#f85149', tension: 0.4, fill: true }] },
+        options: commonOptions
     });
     // 2. DOUGHNUT
     const doughnutChart = new Chart(document.getElementById('doughnutChart'), {
-        type: 'doughnut',
-        data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58a6ff', '#f85149'] }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        type: 'doughnut', data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58a6ff', '#f85149'] }] },
+        options: commonOptions
     });
     // 3. BAR
     const barChart = new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: { labels: Array.from({length: 24}, (_, i) => i), datasets: [{ label: 'Fraud/Jam', data: fraudPerHour, backgroundColor: '#FF8C00' }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        type: 'bar', data: { labels: Array.from({length: 24}, (_, i) => i), datasets: [{ label: 'Fraud/Jam', data: fraudPerHour, backgroundColor: '#FF8C00' }] },
+        options: commonOptions
     });
-    // 4. RADAR - TIPE FRAUD BARU
+    // 4. RADAR
     const radarChart = new Chart(document.getElementById('radarChart'), {
-        type: 'radar',
-        data: { labels: ['Card Not Present', 'Kartu Hilang', 'Kartu Palsu', 'Online', 'Lainnya'], datasets: [{ label: 'Jumlah', data: fraudTypes, backgroundColor: 'rgba(88,166,255,0.3)', borderColor: '#58a6ff' }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        type: 'radar', data: { labels: ['Card Not Present', 'Kartu Hilang', 'Kartu Palsu', 'Online', 'Lainnya'], datasets: [{ label: 'Jumlah', data: fraudTypes, backgroundColor: 'rgba(88,166,255,0.3)', borderColor: '#58a6ff' }] },
+        options: commonOptions
     });
-    // 5. POLAR AREA - LOKASI BARU
+    // 5. POLAR AREA - UDAH BULAT
     const polarChart = new Chart(document.getElementById('polarChart'), {
-        type: 'polarArea',
-        data: { labels: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Lainnya'], datasets: [{ data: locations, backgroundColor: ['#f85149','#FF8C00','#58a6ff','#3fb950','#8b949e'] }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        type: 'polarArea', data: { labels: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Lainnya'], datasets: [{ data: locations, backgroundColor: ['#f85149','#FF8C00','#58a6ff','#3fb950','#8b949e'] }] },
+        options: {...commonOptions, scales: { r: { ticks: { color: '#8b949e' } } } // tambahin scale r biar rapi
     });
-    // 6. GAUGE SIMULASI PAKE DOUGHNUT
+    // 6. GAUGE
     const gaugeChart = new Chart(document.getElementById('gaugeChart'), {
-        type: 'doughnut',
-        data: { labels: ['Risk', 'Safe'], datasets: [{ data: [30, 70], backgroundColor: ['#f85149','#30363d'], circumference: 180, rotation: 270 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        type: 'doughnut', data: { labels: ['Risk', 'Safe'], datasets: [{ data: [30, 70], backgroundColor: ['#f85149','#30363d'], circumference: 180, rotation: 270 }] },
+        options: commonOptions
     });
 
     function updateDashboard() {
@@ -114,24 +112,21 @@
         fraudPerHour[hour] += newFraud;
         if(newFraud > 0) { fraudTypes[typeIdx] += newFraud; locations[locIdx] += newFraud; }
 
-        // Update KPI
         document.getElementById('totalTrans').innerText = totalTrans.toLocaleString();
         document.getElementById('totalFraud').innerText = totalFraud;
         document.getElementById('fraudRate').innerText = ((totalFraud / totalTrans) * 100).toFixed(4) + '%';
         document.getElementById('avgLoss').innerText = '$' + (180 + Math.random()*50).toFixed(0);
         if(newFraud > 0) document.getElementById('lastDetect').innerText = new Date().toLocaleTimeString();
 
-        // Update semua grafik
         fraudPerMinute.shift(); fraudPerMinute.push(newFraud); lineChart.update();
         doughnutChart.data.datasets[0].data = [totalTrans - totalFraud, totalFraud]; doughnutChart.update();
         barChart.data.datasets[0].data = fraudPerHour; barChart.update();
         radarChart.data.datasets[0].data = fraudTypes; radarChart.update();
         polarChart.data.datasets[0].data = locations; polarChart.update();
-        gaugeChart.data.datasets[0].data = [Math.random()*50 + 10, 100]; gaugeChart.update(); // risk naik turun
+        gaugeChart.data.datasets[0].data = [Math.random()*50 + 10, 100]; gaugeChart.update();
 
-        // Alert
         if(newFraud > 0) {
-            document.getElementById('alertBox').innerHTML = `<div class="alert">⚠️ ALERT: ${newFraud} Fraud Terdeteksi! Tipe: ${radarChart.data.labels[typeIdx]}</div>`;
+            document.getElementById('alertBox').innerHTML = `<div class="alert">⚠️ ALERT: ${newFraud} Fraud Terdeteksi! Tipe: ${radarChart.data.labels[typeIdx]} di ${polarChart.data.labels[locIdx]}</div>`;
             document.getElementById('alertSound').play();
             setTimeout(() => { document.getElementById('alertBox').innerHTML = ''; }, 4000);
         }
