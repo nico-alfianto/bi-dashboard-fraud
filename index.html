@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rupiah Monitor — Real-Time Kurs | Nico Alfianto</title>
-<meta name="description" content="Real-time Rupiah Monitor by Nico Alfianto — Live USD, EUR, SGD, JPY to IDR from public exchange rate API.">
+<meta name="description" content="Real-time Rupiah Monitor by Nico Alfianto — Live USD, EUR, SGD, JPY to IDR. Source: European Central Bank via Frankfurter API. Gratis selamanya, tanpa API Key.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -77,7 +77,7 @@ footer a{color:var(--muted)}
 <div>
 <div class="eyebrow">Live Exchange Rate <span>— Rupiah Monitor</span></div>
 <h1>Rupiah Monitor<br><em>Real-Time Kurs IDR</em></h1>
-<p class="header-desc">Pantau pergerakan Rupiah terhadap USD, EUR, SGD & JPY secara live dari public API. Update otomatis tiap 30 detik. Data real, bukan simulasi.</p>
+<p class="header-desc">Pantau pergerakan Rupiah terhadap USD, EUR, SGD & JPY secara live. Data real dari European Central Bank via Frankfurter API — Gratis selamanya, tanpa API Key, tanpa kuota.</p>
 </div>
 <div class="header-right">
 <strong>Nico Alfianto</strong>
@@ -93,7 +93,7 @@ footer a{color:var(--muted)}
 </header>
 <main class="wrap">
 <div class="live-row">
-<div class="status" id="statusWrap"><span class="dot"></span><span id="status">LIVE — Mengambil data dari API...</span></div>
+<div class="status" id="statusWrap"><span class="dot"></span><span id="status">LIVE — Mengambil data dari Frankfurter API...</span></div>
 <div class="controls">
 <button onclick="togglePause()" id="pauseBtn">⏸ Pause</button>
 <button class="secondary" onclick="refreshNow()">↻ Refresh Sekarang</button>
@@ -115,7 +115,7 @@ footer a{color:var(--muted)}
 </div>
 <div class="card">
 <h3>📋 Tabel Kurs Live — 1 Unit Mata Uang = Berapa Rupiah?</h3>
-<p>Data diambil langsung dari API <b>open.er-api.com</b> — gratis, tanpa API key.</p>
+<p>Data diambil langsung dari <b>Frankfurter API (European Central Bank)</b> — gratis selamanya, tanpa API Key, tanpa kuota.</p>
 <table>
 <thead><tr><th>Mata Uang</th><th>Kurs ke IDR</th><th>Status</th></tr></thead>
 <tbody>
@@ -125,21 +125,21 @@ footer a{color:var(--muted)}
 <tr><td><b>🇯🇵 JPY</b> — Yen Jepang</td><td id="tblJPY">—</td><td id="stJPY">—</td></tr>
 </tbody>
 </table>
-<div class="insight"><b>Terakhir Update:</b> <span id="lastUpdate">Belum pernah</span> &nbsp;•&nbsp; <b>Sumber:</b> open.er-api.com (Exchange Rate API) &nbsp;•&nbsp; <b>Auto Refresh:</b> 30 detik</div>
+<div class="insight"><b>Terakhir Update:</b> <span id="lastUpdate">Belum pernah</span> &nbsp;•&nbsp; <b>Sumber:</b> api.frankfurter.app (ECB) + fallback open.er-api.com &nbsp;•&nbsp; <b>Auto Refresh:</b> 60 detik &nbsp;•&nbsp; <b>Cache:</b> localStorage biar hemat & cepet</div>
 </div>
 <div class="card">
 <h3>How It Works</h3>
-<p>Dashboard ini <b>tidak pakai Math.random()</b> lagi. Setiap 30 detik, JavaScript melakukan <b>fetch()</b> ke <code>https://open.er-api.com/v6/latest/USD</code>, mengambil <code>rates.IDR</code>, lalu update semua KPI, chart, dan tabel.</p>
-<div class="insight"><b>Kenapa 30 detik?</b> API gratis update-nya per jam, bukan per detik. Kalau di-fetch tiap 1 detik, angkanya bakal sama terus dan IP lu bisa ke-block. 30 detik itu sweet spot buat demo live.</div>
+<p>Dashboard ini <b>tidak pakai Math.random()</b> lagi dan <b>tidak pakai API Key</b>. Setiap 60 detik, JavaScript melakukan <b>fetch()</b> ke <code>https://api.frankfurter.app/latest?from=USD&to=IDR,EUR,SGD,JPY</code>. Kalo Frankfurter down, otomatis pindah ke <code>open.er-api.com</code>. Hasilnya di-cache di browser biar kalo lu refresh, data langsung muncul tanpa nunggu API.</p>
+<div class="insight"><b>Kenapa Frankfurter?</b> Gratis selamanya, tanpa kuota 1.500/bln kayak ExchangeRate-API, tanpa daftar email. Data dari Bank Sentral Eropa, jadi aman buat portfolio & demo ke recruiter.</div>
 </div>
 <div class="card">
 <h3>Tech Stack</h3>
-<p>HTML &nbsp;•&nbsp; CSS &nbsp;•&nbsp; JavaScript (Fetch API) &nbsp;•&nbsp; Chart.js &nbsp;•&nbsp; Exchange Rate API &nbsp;•&nbsp; GitHub Pages</p>
+<p>HTML &nbsp;•&nbsp; CSS &nbsp;•&nbsp; JavaScript (Fetch API + Fallback + localStorage Cache) &nbsp;•&nbsp; Chart.js &nbsp;•&nbsp; Frankfurter API (ECB) &nbsp;•&nbsp; GitHub Pages</p>
 </div>
 </main>
 <footer>
 <div class="wrap">
-<span>© 2026 Nico Alfianto — Rupiah Monitor. Data: open.er-api.com</span>
+<span>© 2026 Nico Alfianto — Rupiah Monitor. Data: Frankfurter API / ECB</span>
 <span><a href="https://github.com/nico-alfianto/bi-dashboard-fraud" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://nico-myproject.github.io">Portfolio</a></span>
 </div>
 </footer>
@@ -154,10 +154,10 @@ const fmtFull = (n) => n.toLocaleString('id-ID', {maximumFractionDigits: 2});
 const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } }, scales: { x: { ticks: { color: '#71717A' }, grid: { color: '#232326' } }, y: { ticks: { color: '#71717A' }, grid: { color: '#232326' } } } };
 // 1. LINE - USD/IDR
 const lineChart = new Chart(document.getElementById('lineChart'), { type: 'line', data: { labels: [], datasets: [{ label: 'USD / IDR', data: [], borderColor: '#F85149', backgroundColor: 'rgba(248,81,73,0.15)', tension: 0.4, fill: true, pointRadius: 3 }] }, options: commonOptions });
-// 2. BAR - Perbandingan
-const barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: ['USD','EUR','SGD','JPY'], datasets: [{ label: 'Kurs ke IDR (log scale)', data: [0,0,0,0], backgroundColor: ['#58A6FF','#FF8C00','#3FB950','#F85149'], borderRadius: 6 }] }, options: commonOptions });
+// 2. BAR
+const barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: ['USD','EUR','SGD','JPY'], datasets: [{ label: 'Kurs ke IDR', data: [STRIPPED binary array with 4 items], backgroundColor: ['#58A6FF','#FF8C00','#3FB950','#F85149'], borderRadius: 6 }] }, options: commonOptions });
 // 3. RADAR
-const radarChart = new Chart(document.getElementById('radarChart'), { type: 'radar', data: { labels: ['USD','EUR','SGD','JPY'], datasets: [{ label: 'Kekuatan relatif (%)', data: [0,0,0,0], backgroundColor: 'rgba(88,166,255,0.25)', borderColor: '#58A6FF', pointBackgroundColor: '#58A6FF' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } }, scales: { r: { ticks: { color: '#8B949E', backdropColor: 'transparent' }, grid: { color: '#232326' }, angleLines: { color: '#232326' }, pointLabels: { color: '#A1A1AA' } } } } });
+const radarChart = new Chart(document.getElementById('radarChart'), { type: 'radar', data: { labels: ['USD','EUR','SGD','JPY'], datasets: [{ label: 'Kekuatan relatif (%)', data: [STRIPPED binary array with 4 items], backgroundColor: 'rgba(88,166,255,0.25)', borderColor: '#58A6FF', pointBackgroundColor: '#58A6FF' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } }, scales: { r: { ticks: { color: '#8B949E', backdropColor: 'transparent' }, grid: { color: '#232326' }, angleLines: { color: '#232326' }, pointLabels: { color: '#A1A1AA' } } } } });
 // 4. GAUGE
 const gaugeChart = new Chart(document.getElementById('gaugeChart'), { type: 'doughnut', data: { labels: ['Volatilitas', 'Stabil'], datasets: [{ data: [STRIPPED binary array with 2 items], backgroundColor: ['#F85149','#232326'], borderColor: '#131315', borderWidth: 2, circumference: 180, rotation: 270 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } } } });
 function setChange(elId, current, first){
@@ -167,7 +167,6 @@ function setChange(elId, current, first){
   const el = document.getElementById(elId);
   const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '—';
   const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : '';
-  // Untuk IDR: naik = Rupiah melemah (merah), turun = menguat (hijau)
   el.innerHTML = '<span class="'+cls+'">'+arrow+' ' + fmtFull(Math.abs(diff)) + ' (' + pct + '%)</span> ' + (diff > 0 ? '• Rupiah Melemah' : diff < 0 ? '• Rupiah Menguat' : '• Stabil');
 }
 function setTableStatus(elId, current, first){
@@ -183,74 +182,101 @@ function updateRiskText(risk){
   else if(risk < 60) el.textContent = 'Volatilitas SEDANG — Ada pergerakan. Pantau berita BI & The Fed.';
   else el.textContent = 'Volatilitas TINGGI — Pergerakan liar! Hati-hati untuk transaksi besar.';
 }
+// Fungsi utama - render dari rates yang udah jadi
+function renderRates(rates, sourceName){
+  if(!firstRates) firstRates = {...rates};
+  lastData = rates;
+  document.getElementById('kpiUSD').innerText = fmt(rates.USD);
+  document.getElementById('kpiEUR').innerText = fmt(rates.EUR);
+  document.getElementById('kpiSGD').innerText = fmt(rates.SGD);
+  document.getElementById('kpiJPY').innerText = 'Rp ' + rates.JPY.toFixed(2);
+  setChange('chgUSD', rates.USD, firstRates.USD);
+  setChange('chgEUR', rates.EUR, firstRates.EUR);
+  setChange('chgSGD', rates.SGD, firstRates.SGD);
+  setChange('chgJPY', rates.JPY, firstRates.JPY);
+  document.getElementById('tblUSD').innerText = fmt(rates.USD);
+  document.getElementById('tblEUR').innerText = fmt(rates.EUR);
+  document.getElementById('tblSGD').innerText = fmt(rates.SGD);
+  document.getElementById('tblJPY').innerText = 'Rp ' + rates.JPY.toFixed(2);
+  setTableStatus('stUSD', rates.USD, firstRates.USD);
+  setTableStatus('stEUR', rates.EUR, firstRates.EUR);
+  setTableStatus('stSGD', rates.SGD, firstRates.SGD);
+  setTableStatus('stJPY', rates.JPY, firstRates.JPY);
+  document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID') + ' (' + sourceName + ')';
+  usdHistory.push(rates.USD);
+  if(usdHistory.length > 20) usdHistory.shift();
+  lineChart.data.labels = usdHistory.map((_, i) => 'T-' + (usdHistory.length - i));
+  lineChart.data.datasets[0].data = usdHistory;
+  lineChart.update();
+  barChart.data.datasets[0].data = [rates.USD, rates.EUR, rates.SGD, rates.JPY];
+  barChart.update();
+  const max = Math.max(rates.USD, rates.EUR, rates.SGD, rates.JPY);
+  radarChart.data.datasets[0].data = [rates.USD/max*100, rates.EUR/max*100, rates.SGD/max*100, rates.JPY/max*100];
+  radarChart.update();
+  if(usdHistory.length > 1){
+    const min = Math.min(...usdHistory);
+    const maxH = Math.max(...usdHistory);
+    const vol = ((maxH - min) / min * 100) * 500;
+    lastRisk = Math.min(90, Math.max(5, vol + 10));
+  } else { lastRisk = 15; }
+  gaugeChart.data.datasets[0].data = [lastRisk, 100 - lastRisk];
+  gaugeChart.update();
+  updateRiskText(lastRisk);
+  document.getElementById('status').textContent = 'LIVE — Terakhir update ' + new Date().toLocaleTimeString('id-ID') + ' via ' + sourceName;
+  const pctChange = Math.abs((rates.USD - firstRates.USD) / firstRates.USD * 100);
+  if(pctChange > 0.5){
+    document.getElementById('alertBox').innerHTML = '<div class="alert">⚠️ PERHATIAN: USD/IDR bergerak ' + pctChange.toFixed(3) + '% sejak pertama dibuka! Cek berita ekonomi.</div>';
+  }
+}
 async function fetchRates(){
   if(isPaused) return;
   const statusEl = document.getElementById('status');
+  // 1. Cek cache dulu - biar langsung muncul walau API lemot
   try{
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if(!data.rates || !data.rates.IDR) throw new Error('No IDR');
-    // API ini base USD, jadi kita hitung cross rate:
-    // EUR/IDR = IDR per USD / EUR per USD, dst.
-    const usdIdr = data.rates.IDR;
-    const eurIdr = data.rates.IDR / data.rates.EUR;
-    const sgdIdr = data.rates.IDR / data.rates.SGD;
-    const jpyIdr = data.rates.IDR / data.rates.JPY; // ini JPY 1 unit, kecil banget
-    const rates = { USD: usdIdr, EUR: eurIdr, SGD: sgdIdr, JPY: jpyIdr };
-    if(!firstRates) firstRates = {...rates};
-    lastData = rates;
-    // KPI
-    document.getElementById('kpiUSD').innerText = fmt(rates.USD);
-    document.getElementById('kpiEUR').innerText = fmt(rates.EUR);
-    document.getElementById('kpiSGD').innerText = fmt(rates.SGD);
-    document.getElementById('kpiJPY').innerText = 'Rp ' + rates.JPY.toFixed(2);
-    setChange('chgUSD', rates.USD, firstRates.USD);
-    setChange('chgEUR', rates.EUR, firstRates.EUR);
-    setChange('chgSGD', rates.SGD, firstRates.SGD);
-    setChange('chgJPY', rates.JPY, firstRates.JPY);
-    // Tabel
-    document.getElementById('tblUSD').innerText = fmt(rates.USD);
-    document.getElementById('tblEUR').innerText = fmt(rates.EUR);
-    document.getElementById('tblSGD').innerText = fmt(rates.SGD);
-    document.getElementById('tblJPY').innerText = 'Rp ' + rates.JPY.toFixed(2);
-    setTableStatus('stUSD', rates.USD, firstRates.USD);
-    setTableStatus('stEUR', rates.EUR, firstRates.EUR);
-    setTableStatus('stSGD', rates.SGD, firstRates.SGD);
-    setTableStatus('stJPY', rates.JPY, firstRates.JPY);
-    document.getElementById('lastUpdate').innerText = new Date().toLocaleString('id-ID');
-    // Line Chart - history USD/IDR
-    usdHistory.push(rates.USD);
-    if(usdHistory.length > 20) usdHistory.shift();
-    lineChart.data.labels = usdHistory.map((_, i) => 'T-' + (usdHistory.length - i));
-    lineChart.data.datasets[0].data = usdHistory;
-    lineChart.update();
-    // Bar Chart
-    barChart.data.datasets[0].data = [rates.USD, rates.EUR, rates.SGD, rates.JPY];
-    barChart.update();
-    // Radar - normalisasi ke USD = 100
-    const max = Math.max(rates.USD, rates.EUR, rates.SGD, rates.JPY);
-    radarChart.data.datasets[0].data = [rates.USD/max*100, rates.EUR/max*100, rates.SGD/max*100, rates.JPY/max*100];
-    radarChart.update();
-    // Gauge - volatilitas dari selisih max-min history
-    if(usdHistory.length > 1){
-      const min = Math.min(...usdHistory);
-      const maxH = Math.max(...usdHistory);
-      const vol = ((maxH - min) / min * 100) * 500; // dikali biar keliatan
-      lastRisk = Math.min(90, Math.max(5, vol + 10));
-    } else { lastRisk = 15; }
-    gaugeChart.data.datasets[0].data = [lastRisk, 100 - lastRisk];
-    gaugeChart.update();
-    updateRiskText(lastRisk);
-    statusEl.textContent = 'LIVE — Terakhir update ' + new Date().toLocaleTimeString('id-ID');
-    // Alert kalo gerak gede
-    const pctChange = Math.abs((rates.USD - firstRates.USD) / firstRates.USD * 100);
-    if(pctChange > 0.5){
-      document.getElementById('alertBox').innerHTML = '<div class="alert">⚠️ PERHATIAN: USD/IDR bergerak ' + pctChange.toFixed(3) + '% sejak pertama dibuka! Cek berita ekonomi.</div>';
+    const cached = localStorage.getItem('rupiah_cache_v2');
+    if(cached && !lastData){
+      const parsed = JSON.parse(cached);
+      if(parsed && parsed.rates){
+        renderRates(parsed.rates, 'Cache');
+      }
     }
-  } catch(e){
-    console.log('Fetch gagal:', e);
-    statusEl.textContent = 'Gagal ambil API — Coba lagi dalam 30 detik...';
+  }catch(e){}
+  // 2. Coba Frankfurter dulu (GRATIS SELAMANYA, tanpa key)
+  try{
+    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=IDR,EUR,SGD,JPY');
+    if(!res.ok) throw new Error('Frankfurter HTTP ' + res.status);
+    const data = await res.json();
+    if(!data.rates || !data.rates.IDR) throw new Error('No IDR in Frankfurter');
+    const usdIdr = data.rates.IDR;
+    const rates = {
+      USD: usdIdr,
+      EUR: usdIdr / data.rates.EUR,
+      SGD: usdIdr / data.rates.SGD,
+      JPY: usdIdr / data.rates.JPY
+    };
+    localStorage.setItem('rupiah_cache_v2', JSON.stringify({ time: Date.now(), rates }));
+    renderRates(rates, 'Frankfurter / ECB');
+    return;
+  }catch(e){ console.log('Frankfurter gagal, coba cadangan:', e); }
+  // 3. Fallback ke open.er-api.com (juga gratis, tanpa key)
+  try{
+    const res2 = await fetch('https://open.er-api.com/v6/latest/USD');
+    if(!res2.ok) throw new Error('Fallback HTTP ' + res2.status);
+    const data2 = await res2.json();
+    if(!data2.rates || !data2.rates.IDR) throw new Error('No IDR in fallback');
+    const rates2 = {
+      USD: data2.rates.IDR,
+      EUR: data2.rates.IDR / data2.rates.EUR,
+      SGD: data2.rates.IDR / data2.rates.SGD,
+      JPY: data2.rates.IDR / data2.rates.JPY
+    };
+    localStorage.setItem('rupiah_cache_v2', JSON.stringify({ time: Date.now(), rates: rates2 }));
+    renderRates(rates2, 'open.er-api.com');
+    return;
+  }catch(e2){
+    console.log('Semua API gagal:', e2);
+    statusEl.textContent = 'Gagal ambil API — Cek koneksi internet lu, coba Refresh. Cache masih ditampilin kalo ada.';
+    if(!lastData) statusEl.textContent = 'Gagal ambil API — Coba buka https://api.frankfurter.app/latest?from=USD&to=IDR di browser lu, kalo kebuka berarti internet lu yang ke-block.';
   }
 }
 function togglePause(){
@@ -274,8 +300,8 @@ function exportCSV(){
   URL.revokeObjectURL(a.href);
 }
 fetchRates();
-setInterval(fetchRates, 30000);
+setInterval(fetchRates, 60000);
 updateRiskText(15);
 </script>
 </body>
-</html>
+  </html>
