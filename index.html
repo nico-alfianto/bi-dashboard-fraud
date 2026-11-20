@@ -1,119 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Dashboard - Sistem Pengawasan Fraud</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 15px; }
-     .container { max-width: 1600px; margin: auto; }
-        h1 { color: #58a6ff; text-align: center; font-size: 24px; }
-     .status { text-align: center; color: #3fb950; font-weight: bold; font-size: 14px; }
-     .buttons { text-align: center; margin: 15px 0; }
-        button { background: #238636; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 14px; }
-
-     .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
-     .kpi-box { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; }
-     .kpi-box h3 { margin: 0; font-size: 12px; color: #8b949e; }
-     .kpi-box p { margin: 8px 0 0; font-size: 20px; font-weight: bold; color: #58a6ff; }
-
-     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; margin-top: 20px; }
-     .chart-card { background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; }
-     .chart-card h2 { font-size: 16px; margin-top: 0; }
-     .alert { background: #3d1f1f; border-left: 5px solid #f85149; padding: 10px; margin: 10px 0; border-radius: 5px; color: #f85149; font-size: 14px; }
-     .chart-container { position: relative; height: 280px; width: 100%; } /* FIX BUAT BULAT */
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BI Dashboard — Fraud Detection | Nico Alfianto</title>
+<meta name="description" content="Real-time BI Dashboard for Fraud Detection by Nico Alfianto — Transaction monitoring, risk scoring and anomaly insights.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0A0A0B;--card:#131315;--card2:#1A1A1D;--border:#232326;--text:#F4F4F5;--muted:#A1A1AA;--muted2:#71717A;--blue:#58A6FF;--green:#3FB950;--red:#F85149;--orange:#FF8C00}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1600px;margin:0 auto;padding:0 24px}
+header{padding:40px 0 28px;border-bottom:1px solid var(--border)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);font-weight:600;margin-bottom:14px}
+.eyebrow span{color:var(--text)}
+h1{font-size:42px;line-height:1;letter-spacing:-.04em;font-weight:800}
+h1 em{font-style:normal;color:var(--muted)}
+.header-desc{max-width:620px;color:var(--muted);font-size:15px;margin-top:16px;line-height:1.7}
+.header-right{text-align:right}
+.header-right strong{display:block;font-size:15px}
+.header-right p{color:var(--muted);font-size:14px;margin-top:4px}
+.header-right .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.btn-white{display:inline-block;background:#fff;color:#000;font-size:14px;font-weight:600;padding:11px 18px;border-radius:999px}
+.btn-white:hover{background:#E4E4E7}
+.btn-outline{display:inline-block;background:transparent;color:#fff;border:1px solid #3F3F46;font-size:14px;font-weight:600;padding:11px 18px;border-radius:999px}
+.btn-outline:hover{border-color:#fff;background:#1A1A1D}
+main{padding:28px 0 60px}
+.live-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.status{color:var(--green);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.status .dot{width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.5s infinite}
+.status.paused{color:#FACC15}
+.status.paused .dot{background:#FACC15;animation:none}
+@keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+button{font-family:inherit;background:#238636;color:#fff;border:none;padding:11px 18px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:600}
+button:hover{background:#2EA043}
+button.secondary{background:transparent;border:1px solid #3F3F46;color:#fff}
+button.secondary:hover{border-color:#fff;background:#1A1A1D}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:20px 0}
+.kpi-box{background:var(--card);padding:20px;border-radius:16px;border:1px solid var(--border);text-align:left}
+.kpi-box h3{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);font-weight:600}
+.kpi-box p{margin:8px 0 4px;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--text)}
+.kpi-box small{font-size:12px;color:var(--muted)}
+.kpi-box.danger p{color:#FCA5A5}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:20px}
+.chart-card{background:var(--card);padding:20px;border-radius:20px;border:1px solid var(--border)}
+.chart-card h2{font-size:17px;margin-bottom:4px}
+.chart-card p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6}
+.chart-container{position:relative;height:280px;width:100%}
+.alert{background:#450A0A;border:1px solid #7F1D1D;border-left:5px solid #F85149;padding:14px 16px;margin:14px 0;border-radius:12px;color:#FCA5A5;font-size:14px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;margin-top:20px}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{font-size:14px;color:var(--muted);line-height:1.7}
+.insight{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px;font-size:14px;line-height:1.7;color:var(--muted);margin-top:12px}
+.insight b{color:#fff}
+footer{border-top:1px solid var(--border);padding:28px 0 40px;color:var(--muted2);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{color:var(--muted)}
+@media(max-width:900px){h1{font-size:32px}.kpi{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.header-right{text-align:left}.header-right .actions{justify-content:flex-start}}
+@media(max-width:560px){.kpi{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-    <div class="container">
-        <h1>Sistem Pengawasan Fraud Real-Time BI</h1>
-        <p class="status" id="status">● LIVE</p>
-        <div class="buttons">
-            <button onclick="togglePause()">Pause/Resume</button>
-            <button onclick="exportCSV()">Export CSV</button>
-        </div>
-        <div id="alertBox"></div>
-
-        <div class="kpi">
-            <div class="kpi-box"><h3>Total Transaksi</h3><p id="totalTrans">50,000</p></div>
-            <div class="kpi-box"><h3>Fraud Hari Ini</h3><p id="totalFraud">45</p></div>
-            <div class="kpi-box"><h3>Fraud Rate</h3><p id="fraudRate">0.0900%</p></div>
-            <div class="kpi-box"><h3>Rata2 Kerugian</h3><p id="avgLoss">$180</p></div>
-            <div class="kpi-box"><h3>Deteksi Terakhir</h3><p id="lastDetect">-</p></div>
-        </div>
-
-        <div class="grid">
-            <div class="chart-card"><h2>1. Line Chart - Fraud per Menit</h2><div class="chart-container"><canvas id="lineChart"></canvas></div></div>
-            <div class="chart-card"><h2>2. Doughnut - Proporsi Fraud</h2><div class="chart-container"><canvas id="doughnutChart"></canvas></div></div>
-            <div class="chart-card"><h2>3. Bar Chart - Jam Rawan</h2><div class="chart-container"><canvas id="barChart"></canvas></div></div>
-            <div class="chart-card"><h2>4. Radar Chart - Tipe Fraud</h2><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
-            <div class="chart-card"><h2>5. Polar Area - Lokasi Fraud</h2><div class="chart-container"><canvas id="polarChart"></canvas></div></div>
-            <div class="chart-card"><h2>6. Gauge - Risk Level</h2><div class="chart-container"><canvas id="gaugeChart"></canvas></div></div>
-        </div>
-    </div>
-
+<header>
+<div class="wrap">
+<div class="top">
+<div>
+<div class="eyebrow">Business Intelligence <span>— Fraud Detection</span></div>
+<h1>Fraud Detection<br><em>Real-Time BI Dashboard</em></h1>
+<p class="header-desc">Live monitoring of transactions, fraud rate, peak hours, fraud types and locations. Simulated real-time feed for demonstration — every 2 seconds new transactions are processed and risk is re-scored.</p>
+</div>
+<div class="header-right">
+<strong>Nico Alfianto</strong>
+<p>Bogor, Indonesia</p>
+<p style="font-size:13px;">alfiantonico9@gmail.com</p>
+<div class="actions">
+<a class="btn-white" href="https://nico-myproject.github.io">Back to Portfolio</a>
+<a class="btn-outline" href="https://github.com/nico-alfianto/bi-dashboard-fraud" target="_blank">View on GitHub</a>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="wrap">
+<div class="live-row">
+<div class="status" id="statusWrap"><span class="dot"></span><span id="status">LIVE — Monitoring Transactions</span></div>
+<div class="controls">
+<button onclick="togglePause()" id="pauseBtn">⏸ Pause</button>
+<button class="secondary" onclick="exportCSV()">⬇ Export CSV</button>
+<button class="secondary" onclick="resetDemo()">↺ Reset Demo</button>
+</div>
+</div>
+<div id="alertBox"></div>
+<div class="kpi">
+<div class="kpi-box"><h3>Total Transactions</h3><p id="totalTrans">50,000</p><small>All processed transactions</small></div>
+<div class="kpi-box danger"><h3>Fraud Today</h3><p id="totalFraud">45</p><small>Confirmed fraud cases</small></div>
+<div class="kpi-box"><h3>Fraud Rate</h3><p id="fraudRate">0.0900%</p><small>Fraud / Total transactions</small></div>
+<div class="kpi-box"><h3>Avg Loss / Case</h3><p id="avgLoss">$180</p><small>Estimated average loss</small></div>
+<div class="kpi-box"><h3>Last Detection</h3><p id="lastDetect" style="font-size:20px;">—</p><small>Time of latest fraud alert</small></div>
+</div>
+<div class="grid">
+<div class="chart-card"><h2>1. Fraud per Minute</h2><p>Live trend — spikes indicate coordinated attack or system abuse.</p><div class="chart-container"><canvas id="lineChart"></canvas></div></div>
+<div class="chart-card"><h2>2. Fraud vs Normal</h2><p>Proportion of fraud in total volume. Healthy rate is below 0.1%.</p><div class="chart-container"><canvas id="doughnutChart"></canvas></div></div>
+<div class="chart-card"><h2>3. Peak Fraud Hours</h2><p>Fraud usually peaks at night when monitoring is weakest.</p><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+<div class="chart-card"><h2>4. Fraud by Type</h2><p>Card-Not-Present and Online fraud dominate modern cases.</p><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
+<div class="chart-card"><h2>5. Fraud by Location</h2><p>Geographic hotspots help prioritize investigation.</p><div class="chart-container"><canvas id="polarChart"></canvas></div></div>
+<div class="chart-card"><h2>6. Current Risk Level</h2><p>Composite risk score from rate, volume and recent spikes.</p><div class="chart-container"><canvas id="gaugeChart"></canvas></div><div class="insight"><b>How to read:</b> <span id="riskText">Risk is LOW — System stable. Continue monitoring.</span></div></div>
+</div>
+<div class="card">
+<h3>How This Dashboard Works</h3>
+<p>Simulated real-time BI feed. Every 2 seconds the system ingests 5–35 new transactions, scores them, and updates all 6 charts. When fraud is detected, an alert appears and a sound plays.</p>
+<div class="insight"><b>What recruiters should see:</b> You can build a monitoring dashboard, handle live data updates with Chart.js, calculate KPIs on the fly, and design alerts for operational teams — not just static charts.</div>
+</div>
+<div class="card">
+<h3>Tech Stack</h3>
+<p>HTML &nbsp;•&nbsp; CSS &nbsp;•&nbsp; JavaScript &nbsp;•&nbsp; Chart.js &nbsp;•&nbsp; GitHub Pages</p>
+</div>
+</main>
+<footer>
+<div class="wrap">
+<span>© 2026 Nico Alfianto — BI Dashboard Fraud Detection. Demo data for education.</span>
+<span><a href="https://github.com/nico-alfianto/bi-dashboard-fraud" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://nico-myproject.github.io">Portfolio</a></span>
+</div>
+</footer>
 <script>
-    let isPaused = false;
-    let totalTrans = 50000, totalFraud = 45;
-    let fraudPerMinute = Array(20).fill(0);
-    let fraudPerHour = Array(24).fill(0);
-    let fraudTypes = [5, 12, 8, 15, 5];
-    let locations = [10, 8, 15, 7, 5];
-
-    const commonOptions = { responsive: true, maintainAspectRatio: false };
-
-    // 1. LINE
-    const lineChart = new Chart(document.getElementById('lineChart'), { type: 'line', data: { labels: Array.from({length: 20}, (_, i) => `${i}m`), datasets: [{ label: 'Fraud/Menit', data: fraudPerMinute, borderColor: '#f85149', tension: 0.4, fill: true }] }, options: commonOptions });
-    // 2. DOUGHNUT
-    const doughnutChart = new Chart(document.getElementById('doughnutChart'), { type: 'doughnut', data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58a6ff', '#f85149'] }] }, options: commonOptions });
-    // 3. BAR
-    const barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: Array.from({length: 24}, (_, i) => i), datasets: [{ label: 'Fraud/Jam', data: fraudPerHour, backgroundColor: '#FF8C00' }] }, options: commonOptions });
-    // 4. RADAR
-    const radarChart = new Chart(document.getElementById('radarChart'), { type: 'radar', data: { labels: ['Card Not Present', 'Kartu Hilang', 'Kartu Palsu', 'Online', 'Lainnya'], datasets: [{ label: 'Jumlah', data: fraudTypes, backgroundColor: 'rgba(88,166,255,0.3)', borderColor: '#58a6ff' }] }, options: commonOptions });
-    // 5. POLAR AREA - UDAH DITUTUP KURUNG NYA
-    const polarChart = new Chart(document.getElementById('polarChart'), { type: 'polarArea', data: { labels: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Lainnya'], datasets: [{ data: locations, backgroundColor: ['#f85149','#FF8C00','#58a6ff','#3fb950','#8b949e'] }] }, options: {...commonOptions, scales: { r: { ticks: { color: '#8b949e' } }); // <-- INI YG KEMARIN KURANG }
-    // 6. GAUGE
-    const gaugeChart = new Chart(document.getElementById('gaugeChart'), { type: 'doughnut', data: { labels: ['Risk', 'Safe'], datasets: [{ data: [30, 70], backgroundColor: ['#f85149','#30363d'], circumference: 180, rotation: 270 }] }, options: commonOptions });
-
-    function updateDashboard() {
-        if(isPaused) return;
-        let newTrans = Math.floor(Math.random() * 30) + 5;
-        let newFraud = Math.random() < 0.08? Math.floor(Math.random() * 2) + 1 : 0;
-        let hour = new Date().getHours();
-        let typeIdx = Math.floor(Math.random() * 5);
-        let locIdx = Math.floor(Math.random() * 5);
-
-        totalTrans += newTrans; totalFraud += newFraud;
-        fraudPerHour[hour] += newFraud;
-        if(newFraud > 0) { fraudTypes[typeIdx] += newFraud; locations[locIdx] += newFraud; }
-
-        document.getElementById('totalTrans').innerText = totalTrans.toLocaleString();
-        document.getElementById('totalFraud').innerText = totalFraud;
-        document.getElementById('fraudRate').innerText = ((totalFraud / totalTrans) * 100).toFixed(4) + '%';
-        document.getElementById('avgLoss').innerText = '$' + (180 + Math.random()*50).toFixed(0);
-        if(newFraud > 0) document.getElementById('lastDetect').innerText = new Date().toLocaleTimeString();
-
-        fraudPerMinute.shift(); fraudPerMinute.push(newFraud); lineChart.update();
-        doughnutChart.data.datasets[0].data = [totalTrans - totalFraud, totalFraud]; doughnutChart.update();
-        barChart.data.datasets[0].data = fraudPerHour; barChart.update();
-        radarChart.data.datasets[0].data = fraudTypes; radarChart.update();
-        polarChart.data.datasets[0].data = locations; polarChart.update();
-        gaugeChart.data.datasets[0].data = [Math.random()*50 + 10, 100]; gaugeChart.update();
-
-        if(newFraud > 0) {
-            document.getElementById('alertBox').innerHTML = `<div class="alert">⚠️ ALERT: ${newFraud} Fraud Terdeteksi! Tipe: ${radarChart.data.labels[typeIdx]} di ${polarChart.data.labels[locIdx]}</div>`;
-            document.getElementById('alertSound').play();
-            setTimeout(() => { document.getElementById('alertBox').innerHTML = ''; }, 4000);
-        }
-    }
-
-    function togglePause() { isPaused =!isPaused; document.getElementById('status').innerText = isPaused? '● PAUSED' : '● LIVE'; }
-    function exportCSV() { alert("Fitur export: data 6 grafik sudah siap download"); }
-
-    setInterval(updateDashboard, 2000);
+let isPaused = false;
+let totalTrans = 50000, totalFraud = 45;
+let fraudPerMinute = Array(20).fill(0);
+let fraudPerHour = Array(24).fill(0);
+let fraudTypes = [5, 12, 8, 15, 5];
+let locations = [10, 8, 15, 7, 5];
+let lastRisk = 0;
+const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } }, scales: { x: { ticks: { color: '#71717A' }, grid: { color: '#232326' } }, y: { ticks: { color: '#71717A' }, grid: { color: '#232326' } } } };
+// 1. LINE
+const lineChart = new Chart(document.getElementById('lineChart'), { type: 'line', data: { labels: Array.from({length: 20}, (_, i) => (i+1)+'m'), datasets: [{ label: 'Fraud / Min', data: fraudPerMinute, borderColor: '#F85149', backgroundColor: 'rgba(248,81,73,0.15)', tension: 0.4, fill: true, pointRadius: 2 }] }, options: commonOptions });
+// 2. DOUGHNUT
+const doughnutChart = new Chart(document.getElementById('doughnutChart'), { type: 'doughnut', data: { labels: ['Normal', 'Fraud'], datasets: [{ data: [totalTrans - totalFraud, totalFraud], backgroundColor: ['#58A6FF', '#F85149'], borderColor: '#131315', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } } } });
+// 3. BAR
+const barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: Array.from({length: 24}, (_, i) => String(i).padStart(2,'0')+':00'), datasets: [{ label: 'Fraud / Hour', data: fraudPerHour, backgroundColor: '#FF8C00', borderRadius: 6 }] }, options: commonOptions });
+// 4. RADAR
+const radarChart = new Chart(document.getElementById('radarChart'), { type: 'radar', data: { labels: ['Card Not Present', 'Lost Card', 'Counterfeit', 'Online', 'Others'], datasets: [{ label: 'Cases', data: fraudTypes, backgroundColor: 'rgba(88,166,255,0.25)', borderColor: '#58A6FF', pointBackgroundColor: '#58A6FF' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } }, scales: { r: { ticks: { color: '#8B949E', backdropColor: 'transparent' }, grid: { color: '#232326' }, angleLines: { color: '#232326' }, pointLabels: { color: '#A1A1AA' } } } } });
+// 5. POLAR AREA - FIXED: kurung sudah benar
+const polarChart = new Chart(document.getElementById('polarChart'), { type: 'polarArea', data: { labels: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Others'], datasets: [{ data: locations, backgroundColor: ['#F85149','#FF8C00','#58A6FF','#3FB950','#8B949E'], borderColor: '#131315', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } }, scales: { r: { ticks: { color: '#8B949E', backdropColor: 'transparent' }, grid: { color: '#232326' } } } } });
+// 6. GAUGE
+const gaugeChart = new Chart(document.getElementById('gaugeChart'), { type: 'doughnut', data: { labels: ['Risk', 'Safe'], datasets: [{ data: [25, 75], backgroundColor: ['#F85149','#232326'], borderColor: '#131315', borderWidth: 2, circumference: 180, rotation: 270 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#A1A1AA' } } } } });
+function updateRiskText(risk){
+  var el = document.getElementById('riskText');
+  if(risk < 30){ el.textContent = 'Risk is LOW — System stable. Continue monitoring.'; }
+  else if(risk < 60){ el.textContent = 'Risk is MEDIUM — Watch peak hours and Card-Not-Present transactions.'; }
+  else { el.textContent = 'Risk is HIGH — Investigate immediately. Consider freezing suspicious accounts.'; }
+}
+function updateDashboard() {
+  if(isPaused) return;
+  let newTrans = Math.floor(Math.random() * 30) + 5;
+  let newFraud = Math.random() < 0.08 ? Math.floor(Math.random() * 2) + 1 : 0;
+  let hour = new Date().getHours();
+  let typeIdx = Math.floor(Math.random() * 5);
+  let locIdx = Math.floor(Math.random() * 5);
+  totalTrans += newTrans; totalFraud += newFraud;
+  fraudPerHour[hour] += newFraud;
+  if(newFraud > 0) { fraudTypes[typeIdx] += newFraud; locations[locIdx] += newFraud; }
+  document.getElementById('totalTrans').innerText = totalTrans.toLocaleString('en-US');
+  document.getElementById('totalFraud').innerText = totalFraud;
+  document.getElementById('fraudRate').innerText = ((totalFraud / totalTrans) * 100).toFixed(4) + '%';
+  document.getElementById('avgLoss').innerText = '$' + (180 + Math.random()*50).toFixed(0);
+  if(newFraud > 0) document.getElementById('lastDetect').innerText = new Date().toLocaleTimeString('id-ID');
+  fraudPerMinute.shift(); fraudPerMinute.push(newFraud); lineChart.update();
+  doughnutChart.data.datasets[0].data = [totalTrans - totalFraud, totalFraud]; doughnutChart.update();
+  barChart.data.datasets[0].data = fraudPerHour; barChart.update();
+  radarChart.data.datasets[0].data = fraudTypes; radarChart.update();
+  polarChart.data.datasets[0].data = locations; polarChart.update();
+  lastRisk = Math.min(95, Math.max(5, 20 + (totalFraud % 30) + Math.random()*20));
+  gaugeChart.data.datasets[0].data = [lastRisk, 100 - lastRisk]; gaugeChart.update();
+  updateRiskText(lastRisk);
+  if(newFraud > 0) {
+    document.getElementById('alertBox').innerHTML = '<div class="alert">⚠️ ALERT: ' + newFraud + ' Fraud Detected! Type: ' + radarChart.data.labels[typeIdx] + ' in ' + polarChart.data.labels[locIdx] + '</div>';
+    var snd = document.getElementById('alertSound');
+    if(snd) snd.play().catch(function(){});
+    setTimeout(function(){ document.getElementById('alertBox').innerHTML = ''; }, 4000);
+  }
+}
+function togglePause() {
+  isPaused = !isPaused;
+  var wrap = document.getElementById('statusWrap');
+  var st = document.getElementById('status');
+  var btn = document.getElementById('pauseBtn');
+  if(isPaused){ st.textContent = 'PAUSED — Feed stopped'; wrap.classList.add('paused'); btn.textContent = '▶ Resume'; }
+  else { st.textContent = 'LIVE — Monitoring Transactions'; wrap.classList.remove('paused'); btn.textContent = '⏸ Pause'; }
+}
+function exportCSV() {
+  var rows = [['Metric','Value'],['Total Transactions', totalTrans],['Fraud Today', totalFraud],['Fraud Rate %', ((totalFraud/totalTrans)*100).toFixed(4)],['Avg Loss', document.getElementById('avgLoss').innerText],['Last Detection', document.getElementById('lastDetect').innerText],['Risk Level', lastRisk.toFixed(0)],['Exported At', new Date().toLocaleString('id-ID')]];
+  var csv = rows.map(function(r){ return r.join(','); }).join('\n');
+  var blob = new Blob([csv], { type: 'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fraud-dashboard-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function resetDemo() {
+  totalTrans = 50000; totalFraud = 45;
+  fraudPerMinute = Array(20).fill(0);
+  fraudPerHour = Array(24).fill(0);
+  fraudTypes = [5, 12, 8, 15, 5];
+  locations = [10, 8, 15, 7, 5];
+  document.getElementById('totalTrans').innerText = '50,000';
+  document.getElementById('totalFraud').innerText = '45';
+  document.getElementById('fraudRate').innerText = '0.0900%';
+  document.getElementById('avgLoss').innerText = '$180';
+  document.getElementById('lastDetect').innerText = '—';
+  lineChart.data.datasets[0].data = fraudPerMinute; lineChart.update();
+  doughnutChart.data.datasets[0].data = [totalTrans - totalFraud, totalFraud]; doughnutChart.update();
+  barChart.data.datasets[0].data = fraudPerHour; barChart.update();
+  radarChart.data.datasets[0].data = fraudTypes; radarChart.update();
+  polarChart.data.datasets[0].data = locations; polarChart.update();
+  gaugeChart.data.datasets[0].data = [25, 75]; gaugeChart.update();
+  updateRiskText(25);
+}
+setInterval(updateDashboard, 2000);
+updateRiskText(25);
 </script>
 </body>
 </html>
